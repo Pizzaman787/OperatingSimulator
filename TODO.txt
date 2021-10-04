@@ -1,0 +1,4 @@
+-Create Program Templates
+-Create the process generator that reads the templates
+-Create idea for PCB
+-Add single interprecess communication scheme, a message passing scheme, and a multi-level child parent relationship to get a B or A grade

@@ -1,0 +1,29 @@
+Program Class:
+-Stores the amount of cycles needed to run for each state
+-Can ultimately be text files that just have numbers next to the modes
+-Should be read as templates for creating new processes
+-Each line will consist of the operation, minimum cycles, maximum cycles, minimum memory, and maximum memory all seperated by a tab (except I/O, which has two tabs after its operation for reading purposes)
+-Each needs a CALCULATING, I/O, FORK, and CRITICAL operation
+-The FORK can be random as to whether it happens or not
+
+-CACULATING will simply pretend to run the process every cycle, thus just going through the required cycle count
+-I/O will put the process in a 'wait' state as to simulate awaiting input or giving output
+-FORK will create a child process
+-CRITICAL simply simulates a critical period where the process can't be interupted
+
+Example Template:
+CALCULATE	5	100	1	5
+CALCULATE	1	10	1	2
+I/O		10	20	3	5
+CALCULATE	2	4	0	1
+CRITICAL	5	10	1	2
+I/O		10	20	1	2
+
+Built like the template, but only cycles and memory as no min/max
+Example Process:
+CALCULATE	6	2
+CALCULATE	4	1
+I/O		15	3
+CALCULATE	3	1
+CRITICAL	7	1
+I/O		16	2

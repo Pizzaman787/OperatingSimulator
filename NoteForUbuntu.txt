@@ -1,0 +1,5 @@
+Put the line below into the Ubuntu terminal on windows to get to this directory:
+cd /mnt/c/Users/Pizza/Desktop/GitRepositories/OperatingSimulator
+
+Username: bob
+Password: bobby

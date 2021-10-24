@@ -11,7 +11,7 @@ class MySemaphore
     // Should be a CRITICAL section (might not be feasable)
     wait() // a basic busy wait (Is a CRITICAL process)
     {
-        CriticalSection.wait();
+        CriticalSection.wait(); // starts a critical section
         while (u <= 0) // if no user slot is available, busy waits
         {
             ;
@@ -22,7 +22,7 @@ class MySemaphore
 
     signal() // a basic signal (Is a CRITICAL process)
     {
-        CriticalSection.wait();
+        CriticalSection.wait(); // starts a critical section
         u++;
         CriticalSection.signal(); // says is done with critical section
     }

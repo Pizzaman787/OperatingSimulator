@@ -7,17 +7,20 @@
 //function
 int main(int argc, char* argv[])
 {
+    // sets up kernel (Might not be necessary)
 
     // looping system
     while(1)
     {
-        // sets up kernel (Might not be necessary)
+        // begin a cycle
         
-        // awaits input
+        // Checks if there has been input from the user
 
-        // processes input (create processes and stuff)
+        // processes input or just performs the cycle (create processes and stuff)
 
-        // prepare to run again
+        // prepare to run again (end the cycle)
+
+        // display UI update if UI is wanted
 
     }
 }

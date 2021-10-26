@@ -6,4 +6,6 @@ This is a project to create a program that "simulates" the running and managemen
 Current Notes:
 -Critical section only supports one thing in it at a time
 -Semaphores, including the critical section, use busy waiting
--Created in C++ (Only properly tested on linux systems (Ubuntu 20.04LTS))
+-Created in C and C++ (Only properly tested on linux systems (Ubuntu 20.04LTS))
+-Only supports templates that have lines and names less than 1024 characters
+-The Process class acts as a PCB

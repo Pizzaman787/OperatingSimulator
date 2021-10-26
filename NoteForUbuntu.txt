@@ -3,3 +3,6 @@ cd /mnt/c/Users/Pizza/Desktop/GitRepositories/OperatingSimulator
 
 Username: bob
 Password: bobby
+
+compile the program with:
+g++ -o CompiledProgram Main.cpp

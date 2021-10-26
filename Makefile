@@ -2,6 +2,9 @@ linux : Main.cpp
 	g++ -std=c++11 Main.cpp -o Game
 #g++ -std=c++11 Main.cpp Process.cpp PidQueue.cpp -o Game
 
+run: Main.cpp
+	g++ -std=c++11 Main.cpp -o Game
+	./Game
 
 #windows : Base.c
 #	gcc -H Base.c -o Game.exe

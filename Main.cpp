@@ -35,10 +35,10 @@ int main(int argc, char* argv[])
     */
 
     // for testing
+    Process* pc[10];
+    int pSize = 0;
     while(1)
     {
-        Process* pc[10];
-        int pSize = 0;
         // scan for input (Creation of a process or status check)
         char input[1024];
         printf("Waiting for input: ");
@@ -62,7 +62,8 @@ int main(int argc, char* argv[])
         {
             pc[pSize] = new Process(input);
             pSize = pSize + 1;
-        }  
+        }
+        printf("One cycle done.\n"); 
     }
     return 0;
 }

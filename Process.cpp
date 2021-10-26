@@ -77,14 +77,16 @@ void Process::addEvents(char* name) // takes the name of a template as input
     int size = 1024;
     char path[size];
     // sets the path to look for the named template in the templates directory
-    strcat(path, "./templates/");
+    strcpy(path, "./templates/");
     strcat(path, name);
     removeEndings(path);
     strcat(path, ".txt"); // adds ending
     FILE* texts;
     texts = fopen(path, "r+"); // opens the file to read
+
     if (texts == NULL) // if unable to open the file
     {
+        //printf("%s\n", path); // for testing what the path is
         printf("Unable to open requested template.\n"); // doesn't do anything if the template doesn't exist other than notify of bad input
     }
     else
@@ -135,14 +137,46 @@ void Process::addEvents(char* name) // takes the name of a template as input
                 {
                     if (!minCyclesFound)
                     {
-                        minCycles = atoi(&read[0]);
+                        char* temp = strchr(read, '\t');
+                        char temp2[1024] = "";
+                        if (temp == NULL) // checks if there wansn't a tab
+                        {
+                            temp = strchr(read, '\0');
+                        }
+                        int wordSize = strlen(read) - strlen(temp);
+                        int i = 0;
+                        while (i < wordSize) // copies the number to the temp2 string
+                        {
+                            temp2[i] = read[i];
+                            i = i + 1;
+                        }
+                        temp2[i] = '\0'; // adds the end string or null character
+                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+
+                        minCycles = atoi(&temp2[0]);
                         minCyclesFound = true;
                     }
                     else
                     {
-                        maxCycles = atoi(&read[0]);
+                        char* temp = strchr(read, '\t');
+                        char temp2[1024] = "";
+                        if (temp == NULL) // checks if there wansn't a tab
+                        {
+                            temp = strchr(read, '\0');
+                        }
+                        int wordSize = strlen(read) - strlen(temp);
+                        int i = 0;
+                        while (i < wordSize) // copies the number to the temp2 string
+                        {
+                            temp2[i] = read[i];
+                            i = i + 1;
+                        } 
+                        temp2[i] = '\0'; // adds the end string or null character
+                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+
+                        maxCycles = atoi(&temp2[0]);
                     }
-                    strcpy(read, strchr(read, read[1])); // Removes the tab at the beginning
+                    //strcpy(read, strchr(read, read[1])); // Removes the tab at the beginning
                 }
             }
             // check if the event is one without cycles (such as critical and critical end)
@@ -170,6 +204,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
                     {
                         queue->addEvent(2);
                     }
+                    i = i + 1;
                 }
             }
         }

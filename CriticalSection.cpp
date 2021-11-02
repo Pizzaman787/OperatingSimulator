@@ -12,16 +12,17 @@ class CriticalSection
         }
 
     
-    wait() // a basic busy wait
+    criticalWait() // a basic busy wait
     {
         while (u <= 0) // if no user slot is available, busy waits
         {
-            ;
+            ; // Note: could have it not be busy wait by having it return a number if it has permission or not
+            // and simply have it go into waiting if it can't get permission
         }
         u--;
     }
     
-    signal() // a basic signal to be called when the thing that called wait is finished
+    criticalSignal() // a basic signal to be called when the thing that called wait is finished
     {
         u++;
     }

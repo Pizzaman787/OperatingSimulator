@@ -10,12 +10,13 @@
 
 #include "Support.cpp"
 #include "Process.cpp"
+#include "Dispatcher.cpp"
 
 //function
 int main(int argc, char* argv[])
 {
     /*
-    // sets up kernel (Might not be necessary)
+    // sets up kernel (asks number of threads)
 
     // looping system
     while(1)
@@ -33,8 +34,48 @@ int main(int argc, char* argv[])
 
     }
     */
+    Dispatcher* dispatch = new Dispatcher(0, 1); // creates the dispatcher using shortest job first and one thread
+    bool pause = 0;
+    while(1)
+    {
+        // scan for input (Creation of a process or status check)
+        FILE* inputFile;
+        inputFile = fopen("./input.txt", "r"); // opens the file to write and read
+        char input[1024];
+        fgets(input, 1024, inputFile); // puts the first line into the input
+        freopen("./input.txt", "w"); // reopens the file in writing only to overwrite anything in the file (clears the file)
+        fclose(inputFile); // closes the file
+        // 
+        // process input
+        removeEndings(input);
+        if (strcmp(input, "status") == 0)
+        {
+            dispatch->processesStatus();
+        }
+        else if (strcmp(input, "exit") == 0)
+        {
+            break;
+        }
+        else if (strcmp(input, "pause") == 0)
+        {
+            pause = !pause; // sets pause to whatever it isn't
+        }
+        else // tries to find the program template to load
+        {
+            dispatch->addProcess(new Process(input))
+        }
+        // the dispatcher does stuff if not paused
+        if (!pause)
+        {
+            dispatch->doStuff();
+        }
+        printf("One cycle done.\n"); 
+    }
+    delete dispatch; // deletes the dispatcher
+    return 0;
 
     // for testing
+    /*
     Process* pc[10];
     int pSize = 0;
     while(1)
@@ -66,4 +107,5 @@ int main(int argc, char* argv[])
         printf("One cycle done.\n"); 
     }
     return 0;
+    */
 }

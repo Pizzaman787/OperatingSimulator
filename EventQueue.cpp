@@ -48,12 +48,33 @@ void EventQueue::addEvent(int i)
 void EventQueue::popEvent() // removes the first event in queue and goes to the next one
 {
     EventNode* temp = first;
-    first = first->getNext();
-    delete temp; // need to delete the memory associated with the temp variable
-    size = size - 1; // decrement size
+    if (first == NULL) // if no nodes
+    {
+        // do nothing
+    }
+    else if (first == last) // if on the last node
+    {
+        first = NULL;
+        last = NULL;
+        delete temp; // need to delete the memory associated with the temp variable
+        size = size - 1; // decrement size
+    }
+    else
+    {
+        first = first->getNext();
+        delete temp; // need to delete the memory associated with the temp variable
+        size = size - 1; // decrement size
+    }
 }
 
 int EventQueue::readCurrentEvent() // returns the number associated with the next event
 {
-    return first->getEvent();
+    if (first == NULL)
+    {
+        return 0;
+    }
+    else
+    {
+        return first->getEvent();
+    }
 }

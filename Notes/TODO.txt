@@ -1,0 +1,4 @@
+-Distributor (Will store all of the processes)
+-RoundRobin (acts as the scheduler that the distributor uses)
+-Something that causes the program to run (Might be able to add this to the distributor with a run function or something)
+-Make event functions for the Process class

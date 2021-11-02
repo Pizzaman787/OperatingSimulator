@@ -17,12 +17,18 @@
 
 #include "Support.cpp"
 #include "Process.cpp"
+#include "ProcessArray.cpp"
 
 class Dispatcher
 {
     // variables
-    ProcessArray* pReady;
-    ProcessArray* pWait;
+    private:
+        ProcessArray* pReady;
+        ProcessArray* pWait;
+        void swapArray(int i, bool j);
+        void shortestJobFirst(Process* p[], int s);
+        void removeProcess(int i, bool j);
+        int sched = 0; // defaults to shortest job first
 
     public:
         Dispatcher(int s, int t); // the constructor
@@ -38,6 +44,7 @@ Dispatcher::Dispatcher(int s, int t) // the s is for which scheduler to use and 
 {
     pReady = new ProcessArray();
     pWait = new ProcessArray();
+    sched = s;
 }
 
 // Functions
@@ -63,24 +70,24 @@ void Dispatcher::doStuff()
     while (current < end)
     {
         // reference for event: 0 is empty, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end
-        int event = pWait.readCurrentEvent(current); // check what is next
+        int event = pWait->getProcess(current)->readCurrentEvent(); // check what is next
         if (event == 2) // is going to waiting
         {
-            pWait.doEvent(current); // continues the wait
+            pWait->getProcess(current)->doEvent(); // continues the wait
+            current = current + 1;
         }
         else // is not going to be waiting anymore
         {
-            pReady->getProcess(current)->setState(1); // has the process move back to being ready
+            pWait->getProcess(current)->setState(1); // has the process move back to being ready
             swapArray(current, 1); // moves to ready array
+            end = pWait->getCount();
         }
     }
-
     // figure out what scheduler to use and have it sort the ready array
-    if (s == 0)
+    if (sched == 0)
     {
-        shortestJobFirst(pReady); // sorts the ready array
+        shortestJobFirst(pReady->getArray(), pReady->getCount()); // sorts the ready array
     }
-
     // have the pReady array do stuff
         // have the processes try to run, but swap if going to i/o or remove if nothing left
     current = 0;
@@ -88,20 +95,22 @@ void Dispatcher::doStuff()
     while (current < end)
     {
         // reference for state: new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
-        int state = pReady.doEvent(current); // has the process do something
-        if (state == 4) // is terminating
+        int cState = pReady->getProcess(current)->doEvent(); // has the process do something and then returns it current state
+        if (cState == 4) // is terminating
         {
             removeProcess(current, 0); // removes the terminating process
         }
-        else if (state == 3) // is waiting
+        else if (cState == 3) // is waiting
         {
             swapArray(current, 0); // moves to waiting array if process is in waiting state
+            end = pReady->getCount();
+            current = current - 1; // undoes the later add to make sure the removal of a process doesn't cause skipping
         }
-        else if (state == 2) // is running
+        else if (cState == 2) // is running
         {
             pReady->getProcess(current)->setState(1); // has the process move back to being ready
         }
-        else if (state == 1) // is ready (as in just finished asking or wrapping up critical)
+        else if (cState == 1) // is ready (as in just finished asking or wrapping up critical)
         {
             //pReady->getProcess(current)->setState(1); // has the process move back to being ready
         }
@@ -109,6 +118,7 @@ void Dispatcher::doStuff()
         {
             printf("Error: Impossible state at end of cycle\n"); // no other states should be possible here, so an error is thrown
         }
+        current = current + 1;
     }
 }
 
@@ -117,15 +127,15 @@ void Dispatcher::removeProcess(int i, bool j) // i is for index and j is for whi
     Process* m;
     if (!j) // ready array
     {
-        Process* m = pReady->getprocess(i);
+        m = pReady->getProcess(i);
         pReady->removeItem(i);
     }
     else // waiting array
     {
-        Process* m = pWait->getprocess(i);
+        m = pWait->getProcess(i);
         pWait->removeItem(i);
     }
-    m->terminateProcess();
+    //m->terminateProcess(); // should already be terminating by the process class setting it itself
     delete(m);
 }
 
@@ -152,24 +162,28 @@ void Dispatcher::processesStatus()
     int waiting = pWait->getCount(); // amount of processes waiting array
 
     printf("Printing status of processes: %i\n------------------------------------------------------------\n", totalProcesses());
+    printf("For state: new = 0, ready = 1, running = 2, waiting = 3, terminating = 4\n");
+    printf("For event: 0 is none, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end\n");
     // prints the status of all processes in the ready array
     int i = 0;
     while (i < ready)
     {
-        pReady[i]->getProcess(i)->printStatus();
+        pReady->getProcess(i)->printStatus();
+        i = i + 1;
     }
 
     // prints the status of all processes in the waiting array
     i = 0;
     while (i < waiting)
     {
-        pWait[i]->getProcess(i)->printStatus();
+        pWait->getProcess(i)->printStatus();
+        i = i + 1;
     }
     printf("\n");
 }
 
 // shortest job first scheduler
-void Dispatcher::shortestJobFirst(Process* p[], int s) // takes the array and its size as arguments
+void Dispatcher::shortestJobFirst(Process** p, int s) // takes the array and its size as arguments
 {
     // sorts the given array so that they are in order from shortest to longest
     // Bubble sort:

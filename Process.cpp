@@ -11,6 +11,7 @@
 #include "Support.cpp"
 #include "EventQueue.cpp"
 #include "PidQueue.cpp"
+#include "CriticalSection.cpp"
 #include <time.h>
 #include <cstdio>
 #include <stdlib.h>
@@ -26,6 +27,11 @@ class Process
         // MemoryArray // an array for the memory assigned to this process
         Process *parent = NULL;
         time_t timeCreated = 0; // stores the time when the process was created
+        void calculateProcess();
+        void inputOutputProcess();
+        void terminateProcess();
+        void criticalProcess();
+        void criticalEndProcess();
 
     public:
         Process(); // the constructor
@@ -36,9 +42,11 @@ class Process
         int getSize();
         void addEvents(char* name);
         int doEvent();
+        int readCurrentEvent();
 };
 // I was forced to initialize the static variables outside of the class
 PidQueue* Process::pQueue = new PidQueue();
+
 // Constructors
 Process::Process() // creation without a parent process
 {
@@ -69,18 +77,24 @@ void Process::setState(int i)
 void Process::printStatus() // for testing purposes
 {
     printf("PID: %i\t", pid);
-    printf("State: %i\t", state);
-    printf("Event: %i\t", queue->readCurrentEvent());
+    printf("State: %i\t", state); // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
+    printf("Event: %i\t", queue->readCurrentEvent()); // 0 is none, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end
     printf("Priority: %i\t", priority);
     // could add time created
     // could add parent
     printf("\n");
 }
 
+// Adds another layer to the function to allow its call in other classes
+int Process::readCurrentEvent()
+{
+    return (queue->readCurrentEvent());
+}
+
 // returns the number of elements in the in the queue
 int Process::getSize()
 {
-    return queue.getSize();
+    return queue->getSize();
 }
 
 // if broken, then it is probably that \0 was added by the removeEndings function
@@ -123,9 +137,13 @@ void Process::addEvents(char* name) // takes the name of a template as input
                 {
                     //read = read + 1; // moves the pointer over by 1 character
                     if (read[1] != '\t')
+                    {
                         strcpy(read, strchr(read, read[1])); // Removes the tab at the beginning
+                    }
                     else
+                    {
                         strcpy(read, strchr(read, read[2])); // Removes the two tabs at the beginning
+                    }
                 }
                 // else if the event hasn't been found, grab it and put it in event. Then remove said word from read
                 else if (!eventFound)
@@ -222,8 +240,62 @@ void Process::addEvents(char* name) // takes the name of a template as input
                 }
             }
         }
+        fclose(texts); // closes the file
     }
-    fclose(texts); // closes the file
+}
+
+// Need to add some functions for what the process does for the events, such as:
+// calculateProcess() - just sleeps for one millisecond or doesn't do anything
+// inputOutputProcess() - just sleeps and sets the process to wait
+// criticalProcess() - asks for critical permission
+// criticalEndProcess() - returns the permission for critical it got
+// terminateProcess() - has the process return its pid to the queue, should be called when no other events are in queue and before destorying the process
+
+//Note: should return the processes to ready after a function is run
+
+void Process::calculateProcess()
+{
+    state = 2; // goes into running
+    // pretend to do something (does 2 + 2)
+    int a = 2;
+    int b = 2;
+    int c = a + b;
+}
+
+void Process::inputOutputProcess()
+{
+    state = 3; // goes into waiting
+    // wait for a period of time
+    int msec = 0, trigger = 10; /* 10ms */
+    clock_t before = clock();
+
+    do {
+        clock_t difference = clock() - before;
+        msec = difference * 1000 / CLOCKS_PER_SEC;
+    } while ( msec < trigger );
+    // sleep(1); // sleeps for 1 second
+}
+
+void Process::criticalProcess()
+{
+    // ask for critical permission
+    CriticalSection* crit = new CriticalSection();
+    crit->criticalWait();
+}
+
+void Process::criticalEndProcess()
+{
+    // return critical permission
+    CriticalSection* crit = new CriticalSection();
+    crit->criticalSignal();
+}
+
+void Process::terminateProcess()
+{
+    state = 4; // is terminating
+    // returns it pid
+    pQueue->putBackPID(pid);
+    // waits to be destroyed by the dispatcher
 }
 
 // this function gets the process to run its current event and returns which state the process was in at the end of the process
@@ -231,7 +303,7 @@ int Process::doEvent()
 {
     // reference for state: new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
     // figure out current event
-    int e = queue.readCurrentEvent(); // 0 is empty, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end
+    int e = queue->readCurrentEvent(); // 0 is empty, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end
     // do the current event
     if (e == 0) // no events left
     {
@@ -254,56 +326,7 @@ int Process::doEvent()
         criticalEndProcess();
     }
     // move to next event
-    queue.popEvent();
+    queue->popEvent();
     // return which event just completed
     return state;
-}
-// Need to add some functions for what the process does for the events, such as:
-    // calculateProcess() - just sleeps for one millisecond or doesn't do anything
-    // inputOutputProcess() - just sleeps and sets the process to wait
-    // criticalProcess() - asks for critical permission
-    // criticalEndProcess() - returns the permission for critical it got
-    // terminateProcess() - has the process return its pid to the queue, should be called when no other events are in queue and before destorying the process
-
-    //Note: should return the processes to ready after a function is run
-
-void Process::caclulateProcess()
-{
-    state = 2; // goes into running
-    // pretend to do something (does 2 + 2)
-    int a = 2;
-    int b = 2;
-    int c = a + b;
-}
-
-void Process::inputOutputProcess()
-{
-    state = 3; // goes into waiting
-    // wait for a period of time
-    time_t startTime = time(NULL); // gets the current time
-    while (startTime < (startTime + 1))
-    {
-        ; // busy waits for one second
-    }
-    // wait()
-}
-
-void Process::criticalProcess()
-{
-    // ask for critical permission
-    criticalWait();
-}
-
-void Process::criticalEndProcess()
-{
-    // return critical permission
-    criticalSignal();
-}
-
-void Process::terminateProcess()
-{
-    state = 4; // is terminating
-    // returns it pid
-    pQueue.putBackPID(pid);
-    // waits to be destroyed by the dispatcher
 }

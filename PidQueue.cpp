@@ -17,7 +17,7 @@ class PidQueue
     public:
         PidQueue(); // the constructor
         int requestPID();
-        void putbackPID(int p);
+        void putBackPID(int p);
 };
 // I was forced to initialize the static variables outside of the class
 int PidQueue::pidMax = 0;
@@ -57,7 +57,7 @@ int PidQueue::requestPID()
     return i;
 }
 
-void PidQueue::putbackPID(int p) // puts the PID back in the queue (should be used with a process that is being terminated)
+void PidQueue::putBackPID(int p) // puts the PID back in the queue (should be used with a process that is being terminated)
 {
     if (first == NULL) // if no PIDS in queue
     {

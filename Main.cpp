@@ -34,18 +34,32 @@ int main(int argc, char* argv[])
 
     }
     */
+    printf("System Started\n");
+
     Dispatcher* dispatch = new Dispatcher(0, 1); // creates the dispatcher using shortest job first and one thread
+
+    // for testing I add a process
+    //dispatch->addProcess(new Process("Basic2plus2"));
+
     bool pause = 0;
     while(1)
     {
         // scan for input (Creation of a process or status check)
         FILE* inputFile;
-        inputFile = fopen("./input.txt", "r"); // opens the file to write and read
-        char input[1024];
-        fgets(input, 1024, inputFile); // puts the first line into the input
-        freopen("./input.txt", "w"); // reopens the file in writing only to overwrite anything in the file (clears the file)
-        fclose(inputFile); // closes the file
-        // 
+        inputFile = fopen("./input.txt", "r"); // opens the file to read
+        char input[1024] = "";
+        if (inputFile != NULL)
+        {
+            fgets(input, 1024, inputFile); // puts the first line into the input
+            freopen("./input.txt", "w", inputFile); // reopens the file in writing only to overwrite anything in the file (clears the file)
+            fclose(inputFile); // closes the file
+        }
+        else
+        {
+            // fclose(inputFile); // closes the file that failed to open
+            inputFile = fopen("./input.txt", "w"); // opens the file to write to make a blank input file
+            fclose(inputFile); // closes the input file
+        }
         // process input
         removeEndings(input);
         if (strcmp(input, "status") == 0)
@@ -62,14 +76,19 @@ int main(int argc, char* argv[])
         }
         else // tries to find the program template to load
         {
-            dispatch->addProcess(new Process(input))
+            if (strcmp(input, "") != 0) // if the input isn't empty
+            {
+                Process* p = new Process(input);
+                dispatch->addProcess(p);
+            }
         }
         // the dispatcher does stuff if not paused
         if (!pause)
         {
             dispatch->doStuff();
         }
-        printf("One cycle done.\n"); 
+        //printf("One cycle done.\n"); 
+        //dispatch->processesStatus(); // for testing
     }
     delete dispatch; // deletes the dispatcher
     return 0;

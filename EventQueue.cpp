@@ -19,6 +19,7 @@ class EventQueue
         void addEvent(int i);
         void popEvent();
         int readCurrentEvent();
+        int getSize();
 };
 
 // Contructor
@@ -77,4 +78,9 @@ int EventQueue::readCurrentEvent() // returns the number associated with the nex
     {
         return first->getEvent();
     }
+}
+
+int EventQueue::getSize()
+{
+    return size;
 }

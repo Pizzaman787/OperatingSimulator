@@ -3,22 +3,27 @@
 
 #pragma once
 
+#include "Process.cpp"
+
 class ProcessArray
 {
-    //private:
-    int size = 10; // stores the current size of the array
-    int count = 0; // stores the number of items in the array
-    float upperBound = .75f; // the bound for when the array needs to be made bigger
-    float lowerBound = .35f; // the bound for when the array needs to be made smaller
-    Process* array[]; // the pointer to the array that stores the pointers
+    private:
+        int size = 10; // stores the current size of the array
+        int count = 0; // stores the number of items in the array
+        float upperBound = .75f; // the bound for when the array needs to be made bigger
+        float lowerBound = .35f; // the bound for when the array needs to be made smaller
+        Process** array; // the pointer to the array that stores the pointers
 
     public:
         ProcessArray(); // the constructor
         void addItem(Process* p);
         void removeItem(int i); // takes the index of the process to remove
-        void copyElements(Process a[]);
+        void copyElements(Process* a[]);
         void growArray();
         void shrinkArray();
+        int getCount();
+        Process* getProcess(int i);
+        Process** getArray();
 };
 
 // Contructor
@@ -29,6 +34,7 @@ ProcessArray::ProcessArray()
     while (i < size)
     {
         array[i] = NULL; // ensures all are null by default
+        i = i + 1;
     }
 }
 
@@ -40,10 +46,15 @@ void ProcessArray::addItem(Process* p)
     // increments count
     count = count + 1;
     // if count is above the upperbound, increase the array size
-    if (((float)count/size) >= upperbound)
+    if (((float)count/size) >= upperBound)
     {
         growArray();
     }
+}
+
+Process** ProcessArray::getArray()
+{
+    return array;
 }
 
 void ProcessArray::removeItem(int i) // removes the item at the index given
@@ -88,11 +99,11 @@ void ProcessArray::copyElements(Process* a[])
 void ProcessArray::growArray()
 {
     // create a new process array that is double the size of the current one
-    Process* temp[] = new Process*[size * 2];
+    Process** temp = new Process*[(size * 2)];
     // copy the elements from the current array into the array created
     copyElements(temp);
     // have the current array pointer be moved to that of the new array
-    Process* temp2[] = array; // stores old array pointer
+    Process** temp2 = array; // stores old array pointer
     array = temp;
     // delete the old array
     delete temp2;
@@ -103,11 +114,11 @@ void ProcessArray::growArray()
 void ProcessArray::shrinkArray()
 {
     // create a new process array that is half the size of the current one
-    Process* temp[] = new Process*[size / 2];
+    Process** temp = new Process*[(size / 2)];
     // copy the elements from the current array into the array created
     copyElements(temp);
     // have the current array pointer be moved to that of the new array
-    Process* temp2[] = array; // stores old array pointer
+    Process** temp2 = array; // stores old array pointer
     array = temp;
     // delete the old array
     delete temp2;

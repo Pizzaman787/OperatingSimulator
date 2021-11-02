@@ -10,3 +10,4 @@ Current Notes:
 -Only supports templates that have lines and names less than 1024 characters
 -Only supports input in the file that is less than 1024 characters or less
 -The Process class acts as a PCB
+-Status currently can't show processes terminating and running, as they finish or change before status can show them

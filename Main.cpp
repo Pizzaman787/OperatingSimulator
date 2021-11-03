@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     //dispatch->addProcess(new Process("Basic2plus2"));
 
     bool pause = 0;
-    bool alwaysStatus = 1;
+    bool alwaysStatus = 0;
     while(1)
     {
         // scan for input (Creation of a process or status check)

@@ -223,6 +223,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
             // generate the number of cycles and add the events to the queue
             else
             {
+                //srand(time(NULL)); // seeds rand
                 int j = rand() % (maxCycles + 1 - minCycles); // gets the range between min and max
                 j = j + minCycles; // adds the min to set a minumum number
                 int i = 0;

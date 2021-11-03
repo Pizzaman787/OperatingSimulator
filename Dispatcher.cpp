@@ -99,6 +99,8 @@ void Dispatcher::doStuff()
         if (cState == 4) // is terminating
         {
             removeProcess(current, 0); // removes the terminating process
+            end = pReady->getCount();
+            current = current - 1; // undoes the later add to make sure the removal of a process doesn't cause skipping
         }
         else if (cState == 3) // is waiting
         {

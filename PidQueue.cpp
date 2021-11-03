@@ -49,7 +49,16 @@ int PidQueue::requestPID()
     else // if there is already PIDs in queue, grab the first one
     {
         PidNode* temp = first;
-        first = first->getNext();
+        if (size > 1)
+        {
+            first = first->getNext();
+        }
+        else
+        {
+            first = NULL;
+            last = NULL;
+        }
+        
         i = temp->getPID();
         delete temp; // need to delete the memory associated with the temp variable
         size = size - 1; // decrement size

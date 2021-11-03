@@ -93,6 +93,7 @@ void ProcessArray::copyElements(Process* a[])
     while (i < count)
     {
         a[i] = array[i];
+        i = i + 1;
     }
 }
 

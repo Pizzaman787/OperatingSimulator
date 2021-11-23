@@ -138,7 +138,9 @@ void Dispatcher::removeProcess(int i, bool j) // i is for index and j is for whi
         pWait->removeItem(i);
     }
     //m->terminateProcess(); // should already be terminating by the process class setting it itself
-    delete(m);
+    if (showDeletes)
+        printf("Deleting process: Dispatcher %i %i \n", i, j); // for TESTING
+    //delete(m); // currently causes an error of double freeing when having 3+ processes
 }
 
 void Dispatcher::swapArray(int i, bool j) // i is for index and j is for which array the process is in (0 is for ready while 1 is for waiting)

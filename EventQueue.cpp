@@ -5,6 +5,7 @@
 #pragma once
 
 #include "EventNode.cpp"
+#include "Support.cpp"
 
 class EventQueue
 {
@@ -57,12 +58,16 @@ void EventQueue::popEvent() // removes the first event in queue and goes to the 
     {
         first = NULL;
         last = NULL;
+        if (showDeletes)
+            printf("Deleting variable: EventQueue pop 1\n"); // for TESTING
         delete temp; // need to delete the memory associated with the temp variable
         size = size - 1; // decrement size
     }
     else
     {
         first = first->getNext();
+        if (showDeletes)
+            printf("Deleting variable: EventQueue pop 2\n"); // for TESTING
         delete temp; // need to delete the memory associated with the temp variable
         size = size - 1; // decrement size
     }

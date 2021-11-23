@@ -11,7 +11,7 @@ class ProcessArray
         int size = 10; // stores the current size of the array
         int count = 0; // stores the number of items in the array
         float upperBound = .75f; // the bound for when the array needs to be made bigger
-        float lowerBound = .35f; // the bound for when the array needs to be made smaller
+        float lowerBound = .35f; // the bound for when the array needs to be made smaller (doesn't do anything if size is <= 10)
         Process** array; // the pointer to the array that stores the pointers
 
     public:
@@ -46,7 +46,7 @@ void ProcessArray::addItem(Process* p)
     // increments count
     count = count + 1;
     // if count is above the upperbound, increase the array size
-    if (((float)count/size) >= upperBound)
+    if (((float)count / (float)size) >= upperBound)
     {
         growArray();
     }
@@ -83,7 +83,10 @@ void ProcessArray::removeItem(int i) // removes the item at the index given
     // decrements count
     count = count - 1;
     // if the count is below the lower bound, decrease array size
-    shrinkArray();
+    if (((float)count / (float)size) < lowerBound && size > 10) // won't shrink if not above 10 to prevent really tiny array
+    {
+        shrinkArray();
+    }
 }
 
 void ProcessArray::copyElements(Process* a[])
@@ -107,6 +110,8 @@ void ProcessArray::growArray()
     Process** temp2 = array; // stores old array pointer
     array = temp;
     // delete the old array
+    if (showDeletes)
+        printf("Deleting Old Array: ProcessArray grow\n"); // for TESTING
     delete temp2;
     // update size
     size = size * 2;
@@ -122,6 +127,8 @@ void ProcessArray::shrinkArray()
     Process** temp2 = array; // stores old array pointer
     array = temp;
     // delete the old array
+    if (showDeletes)
+        printf("Deleting Old Array: ProcessArray shrink\n"); // for TESTING
     delete temp2;
     // update size
     size = size / 2;

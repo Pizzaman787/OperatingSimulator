@@ -5,6 +5,7 @@
 //#pragma once
 
 #include "PidNode.cpp"
+#include "Support.cpp"
 
 class PidQueue
 {
@@ -60,6 +61,8 @@ int PidQueue::requestPID()
         }
         
         i = temp->getPID();
+        if (showDeletes)
+            printf("Deleting node: PidQueue request\n"); // for TESTING
         delete temp; // need to delete the memory associated with the temp variable
         size = size - 1; // decrement size
     }

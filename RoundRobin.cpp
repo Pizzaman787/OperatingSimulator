@@ -1,6 +1,8 @@
 // This is the class for the RoundRobin algorithm
 // This code acts as the short term schedular for the distributor
 
+//Idea: Could add a timer to Dispatcher for the processes as to allow round robin to add interrupts
+
 #pragma once
 
 class RoundRobin

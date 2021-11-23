@@ -1,3 +1,4 @@
 -RoundRobin (acts as the scheduler that the distributor uses)
 -Fix PID queue (seems to not properly distribute or put back PIDs)
--Fix problem where segfaults or memory issues when adding a lot of processes
+-Fix memory issue in dispatcher for deleting processes
+-fix rand not working for randomizing created processes

@@ -1,11 +1,14 @@
 linux : Main.cpp
-	g++ -std=c++11 Main.cpp -o Game
+	g++ -std=c++11 Main.cpp -o Game -lpthread
 #g++ -std=c++11 Main.cpp Process.cpp PidQueue.cpp -o Game
 
 run: Main.cpp
-	g++ -std=c++11 Main.cpp -o Game
+	g++ -std=c++11 Main.cpp -o Game -lpthread
 	./Game
 
+valgrind: Main.cpp
+	g++ -std=c++11 Main.cpp -o Game
+	valgrind --leak-check=yes Game
 #windows : Base.c
 #	gcc -H Base.c -o Game.exe
 

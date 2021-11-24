@@ -115,7 +115,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
     if (texts == NULL) // if unable to open the file
     {
         //printf("%s\n", path); // for testing what the path is
-        printf("Unable to open requested template.\n"); // doesn't do anything if the template doesn't exist other than notify of bad input
+        //printf("Unable to open requested template.\n"); // doesn't do anything if the template doesn't exist other than notify of bad input (disabled for use in threads, as it just spams the terminal when input is unused)
     }
     else
     {
@@ -261,6 +261,18 @@ void Process::calculateProcess()
     int a = 2;
     int b = 2;
     int c = a + b;
+
+    if (artificialDelays) // adds more delay
+    {
+        // wait for a period of time
+        int msec = 0, trigger = 10; /* 10ms */
+        clock_t before = clock();
+
+        do {
+            clock_t difference = clock() - before;
+            msec = difference * 1000 / CLOCKS_PER_SEC;
+        } while ( msec < trigger );
+    }
 }
 
 void Process::inputOutputProcess()
@@ -275,6 +287,19 @@ void Process::inputOutputProcess()
         msec = difference * 1000 / CLOCKS_PER_SEC;
     } while ( msec < trigger );
     // sleep(1); // sleeps for 1 second
+
+    if (artificialDelays) // adds more delay
+    {
+        // wait for a period of time
+        int msec = 0, trigger = 20; /* 20ms */
+        clock_t before = clock();
+
+        do {
+            clock_t difference = clock() - before;
+            msec = difference * 1000 / CLOCKS_PER_SEC;
+        } while ( msec < trigger );
+    }
+   
 }
 
 void Process::criticalProcess()

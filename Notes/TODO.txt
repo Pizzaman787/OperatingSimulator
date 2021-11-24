@@ -1,4 +1,12 @@
 -RoundRobin (acts as the scheduler that the distributor uses)
+-Fix shortest job first algorithm (can take the current thing for round robin)
 -Fix PID queue (seems to not properly distribute or put back PIDs)
 -Fix memory issue in dispatcher for deleting processes
 -fix rand not working for randomizing created processes
+-Need to rewrite program to be [one thing that takes input and shoots instructions] and [a part that simply waits and loads instructions as recieved] in order for threading to be better than file string input
+	-Fix processes not being properly added when using threading
+
+-Add memory support:
+	-Add ability to store memory in processes
+	-Add ability to have memory in templates
+	-Add manager (block or pages) to prevent process creation if it can't get enough memory (either just stop it or add it to a queue)

@@ -6,6 +6,7 @@
 
 // global testing variables
 bool showDeletes = 0;
+bool artificialDelays = 1;
 
 // removes the endings /r and /n from a string
 void removeEndings(char* temp)

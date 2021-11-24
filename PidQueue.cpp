@@ -41,16 +41,20 @@ int PidQueue::requestPID()
     int i = 0;
     if (first == NULL) // if no PIDs in queue, adds one to the queue
     {
+        /*
         PidNode* n = new PidNode(pidMax); // creates a new PID equal to the max
         pidMax = pidMax + 1; // increases the counter for the highest PID
         first = n; // sets the first address
         last = n; // sets the last address
         i = requestPID(); // calls again to get the else to trigger on the newly added PID
+        */
+        i = pidMax; // sets the current pidMax to be given as the pid
+        pidMax = pidMax + 1; // increases the max
     }
     else // if there is already PIDs in queue, grab the first one
     {
         PidNode* temp = first;
-        if (size > 1)
+        if (size > 1) // checks if there is more than one
         {
             first = first->getNext();
         }

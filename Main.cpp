@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
         // process input
         removeEndings(input);
         //printf("Input: %s\n", input); // for testing
-        //printf("Input: %s\n", input);
         if (strcmp(input, "status") == 0)
         {
             dispatch->processesStatus();
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
             pause = !pause; // sets pause to whatever it isn't
             printf("Toggled pause\n");
         }
-        else // tries to find the program template to load
+        else // tries to find the program template to load (more modular than if it checked for specific template names)
         {
             if (strcmp(input, "") != 0) // if the input isn't empty
             {

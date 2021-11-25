@@ -23,6 +23,7 @@ class Process
         int pid = 0; // current number assigned to process
         int state = 0; // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
         int priority = 0; // higher is more prioritized
+        int memory = 0; // stores the memory of the process
         EventQueue* queue;
         // MemoryArray // an array for the memory assigned to this process
         Process *parent = NULL;
@@ -79,6 +80,7 @@ void Process::printStatus() // for testing purposes
     printf("PID: %i\t", pid);
     printf("State: %i\t", state); // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
     printf("Event: %i\t", queue->readCurrentEvent()); // 0 is none, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end
+    printf("Memory: %i\t", memory);
     printf("Priority: %i\t", priority);
     // could add time created
     // could add parent
@@ -128,8 +130,11 @@ void Process::addEvents(char* name) // takes the name of a template as input
             int minCycles = 0;
             bool minCyclesFound = false;
             int maxCycles = 0;
-            //int minMemory = 0;
-            //int maxMemory = 0;
+            bool maxCyclesFound = false;
+            int minMemory = 0;
+            bool minMemoryFound = false;
+            int maxMemory = 0;
+            bool maxMemoryFound = false;
             while(strlen(read) > 0)
             {
                 // check if current char is a tab, if it is, remove it
@@ -188,7 +193,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
                         minCycles = atoi(&temp2[0]);
                         minCyclesFound = true;
                     }
-                    else
+                    else if (!maxCyclesFound)
                     {
                         char* temp = strchr(read, '\t');
                         char temp2[1024] = "";
@@ -207,6 +212,49 @@ void Process::addEvents(char* name) // takes the name of a template as input
                         strcpy(read, strchr(read, *temp)); // removes the word from the read string
 
                         maxCycles = atoi(&temp2[0]);
+                        maxCyclesFound = true;
+                    }
+                    else if (!minMemoryFound)
+                    {
+                        char* temp = strchr(read, '\t');
+                        char temp2[1024] = "";
+                        if (temp == NULL) // checks if there wansn't a tab
+                        {
+                            temp = strchr(read, '\0');
+                        }
+                        int wordSize = strlen(read) - strlen(temp);
+                        int i = 0;
+                        while (i < wordSize) // copies the number to the temp2 string
+                        {
+                            temp2[i] = read[i];
+                            i = i + 1;
+                        }
+                        temp2[i] = '\0'; // adds the end string or null character
+                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+
+                        minMemory = atoi(&temp2[0]);
+                        minMemoryFound = true;
+                    }
+                    else if (!maxMemoryFound)
+                    {
+                        char* temp = strchr(read, '\t');
+                        char temp2[1024] = "";
+                        if (temp == NULL) // checks if there wansn't a tab
+                        {
+                            temp = strchr(read, '\0');
+                        }
+                        int wordSize = strlen(read) - strlen(temp);
+                        int i = 0;
+                        while (i < wordSize) // copies the number to the temp2 string
+                        {
+                            temp2[i] = read[i];
+                            i = i + 1;
+                        }
+                        temp2[i] = '\0'; // adds the end string or null character
+                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+
+                        maxMemory = atoi(&temp2[0]);
+                        maxMemoryFound = true;
                     }
                     //strcpy(read, strchr(read, read[1])); // Removes the tab at the beginning
                 }
@@ -240,6 +288,10 @@ void Process::addEvents(char* name) // takes the name of a template as input
                     i = i + 1;
                 }
             }
+            // adds the memory
+            int j = rand() % (maxMemory + 1 - minMemory); // gets the range between min and max
+            j = j + minMemory; // adds the min to set a minumum number
+            memory = memory + j; // adds the memory for this part to the total memory of the process
         }
         fclose(texts); // closes the file
     }

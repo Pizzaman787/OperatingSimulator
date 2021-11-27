@@ -36,14 +36,18 @@ class Process
 
     public:
         Process(); // the constructor
-        Process(char* s); // other constructor
+        Process(char* s); // other constructor for using a template
+        Process(char* s, int i); // template and priority
+        Process(Process* p); // forking constructor
         void setPriority(int i);
+        int getPriority();
         void setState(int i);
         void printStatus();
         int getSize();
         void addEvents(char* name);
         int doEvent();
         int readCurrentEvent();
+        EventNode* getCurrentEvent();
 };
 // I was forced to initialize the static variables outside of the class
 PidQueue* Process::pQueue = new PidQueue();
@@ -64,10 +68,42 @@ Process::Process(char* s) // creation without a parent process, but with a templ
     addEvents(s); // will make an empty process if template not found
 }
 
+Process::Process(char* s, int i) // creation without a parent process, but with a template for the events and priority
+{
+    pid = pQueue->requestPID(); // gets a unique PID
+    timeCreated = time(NULL); // stores current time in seconds
+    queue = new EventQueue();
+    addEvents(s); // will make an empty process if template not found
+    priority = i;
+}
+
+Process::Process(Process* p) // creates a fork of the given process with the process being the parent
+{
+    pid = pQueue->requestPID(); // gets a unique PID
+    timeCreated = time(NULL); // stores current time in seconds
+    queue = new EventQueue();
+    priority = p->getPriority(); // gets the priority of the parent
+    parent = p; // sets parent
+
+    // fills the queue with the events in the parent (could make this a function for reusabilty)
+    EventNode* en = p->getCurrentEvent();
+    while (en != NULL)
+    {
+        // read what the current event is and add it to the queue
+        queue->addEvent(en->getEvent());
+        // move to the next node of the parent and repeat (move en to the next in the queue)
+        en = en->getNext();
+    }
+}
+
 // Functions
 void Process::setPriority(int i)
 {
     priority = i;
+}
+int Process::getPriority()
+{
+    return priority;
 }
 
 void Process::setState(int i)
@@ -91,6 +127,11 @@ void Process::printStatus() // for testing purposes
 int Process::readCurrentEvent()
 {
     return (queue->readCurrentEvent());
+}
+
+EventNode* Process::getCurrentEvent()
+{
+    return (queue->getCurrentEvent());
 }
 
 // returns the number of elements in the in the queue

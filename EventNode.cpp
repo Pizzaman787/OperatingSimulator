@@ -18,6 +18,7 @@ class EventNode
         EventNode(int i);
         void setNext(EventNode* e);
         EventNode* getNext();
+        void setEvent(int i);
         int getEvent();
 
 };
@@ -49,6 +50,11 @@ void EventNode::setNext(EventNode* e)
 EventNode* EventNode::getNext()
 {
     return next;
+}
+
+void EventNode::setEvent(int i)
+{
+    event = i;
 }
 
 int EventNode::getEvent()

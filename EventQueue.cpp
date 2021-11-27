@@ -21,6 +21,7 @@ class EventQueue
         void popEvent();
         int readCurrentEvent();
         int getSize();
+        EventNode* getCurrentEvent(); // used for creating forks
 };
 
 // Contructor
@@ -83,6 +84,10 @@ int EventQueue::readCurrentEvent() // returns the number associated with the nex
     {
         return first->getEvent();
     }
+}
+EventNode* EventQueue::getCurrentEvent()
+{
+    return first;
 }
 
 int EventQueue::getSize()

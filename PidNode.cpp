@@ -1,5 +1,7 @@
 // This is the class for the node used by PidQueue.cpp
 #pragma once
+#ifndef PIDNODE
+#define PIDNODE
 
 #include <cstdio>
 
@@ -50,3 +52,5 @@ int PidNode::getPID()
 {
     return pid;
 }
+
+#endif

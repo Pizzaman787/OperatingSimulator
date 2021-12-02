@@ -2,6 +2,9 @@
 
 #pragma once
 
+#ifndef SUPPORT
+#define SUPPORT
+
 #include <cstring>
 
 // global testing variables
@@ -20,3 +23,5 @@ void removeEndings(char* temp)
         temp[strcspn(temp, "\n")] = '\0'; // removes new line from hitting enter
     }
 }
+
+#endif

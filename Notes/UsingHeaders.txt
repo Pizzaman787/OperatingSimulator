@@ -1,0 +1,5 @@
+Have a header script that is the name of the script/class but ends in .h
+It should have the declarations, meaning it should include the class, but no functions or constructors (or most of the inclusions)
+Include the header files in any file that needs access to the class
+In the main file, include the cpp files (they shouldn't have the parts in the header files, aka the class declarations and stuff) after the header files
+This should give the compiler the definitions while also preventing weird duplicate definements

@@ -15,29 +15,16 @@
 
 #pragma once
 
+#ifndef DISPATCHER
+#define DISPATCHER
+
 #include "Support.cpp"
-#include "Process.cpp"
+#include "Process.h"
+#include "Dispatcher.h"
 #include "ProcessArray.cpp"
 
-class Dispatcher
-{
-    // variables
-    private:
-        ProcessArray* pReady;
-        ProcessArray* pWait;
-        void swapArray(int i, bool j);
-        void shortestJobFirst(Process* p[], int s);
-        void removeProcess(int i, bool j);
-        int sched = 0; // defaults to shortest job first
-
-    public:
-        Dispatcher(int s, int t); // the constructor
-        void addProcess(Process* m);
-        void processesStatus();
-        int totalProcesses();
-        void doStuff();
-        //void shortestJobFirst(Process* p[], int s);
-};
+// static initializations
+ProcessArray* Dispatcher::pNeedsSorting = new ProcessArray();
 
 // Constructors
 Dispatcher::Dispatcher(int s, int t) // the s is for which scheduler to use and t is for threads
@@ -47,10 +34,17 @@ Dispatcher::Dispatcher(int s, int t) // the s is for which scheduler to use and 
     sched = s;
 }
 
+Dispatcher::Dispatcher() // default constructor for use to get access to static variables
+{
+    pReady = new ProcessArray();
+    pWait = new ProcessArray();
+}
+
 // Functions
 void Dispatcher::addProcess(Process* m)
 {
-    pReady->addItem(m);
+    //pReady->addItem(m);
+    pNeedsSorting->addItem(m);
     m->setState(1); // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
 }
 
@@ -79,13 +73,14 @@ void Dispatcher::doStuff()
         else // is not going to be waiting anymore
         {
             pWait->getProcess(current)->setState(1); // has the process move back to being ready
-            swapArray(current, 1); // moves to ready array
+            swapArray(current, 1, 0); // moves to ready array
             end = pWait->getCount();
         }
     }
     // figure out what scheduler to use and have it sort the ready array
     if (sched == 0)
     {
+        moveReadyProcesses();
         shortestJobFirst(pReady->getArray(), pReady->getCount()); // sorts the ready array
     }
     // have the pReady array do stuff
@@ -99,13 +94,13 @@ void Dispatcher::doStuff()
         if (cState == 4) // is terminating
         {
             removeProcess(current, 0); // removes the terminating process
-            end = pReady->getCount();
+            end = pReady->getCount(); // updates what would be the end
             current = current - 1; // undoes the later add to make sure the removal of a process doesn't cause skipping
         }
         else if (cState == 3) // is waiting
         {
-            swapArray(current, 0); // moves to waiting array if process is in waiting state
-            end = pReady->getCount();
+            swapArray(current, 0, 1); // moves to waiting array if process is in waiting state
+            end = pReady->getCount(); // updates what would be the end
             current = current - 1; // undoes the later add to make sure the removal of a process doesn't cause skipping
         }
         else if (cState == 2) // is running
@@ -116,7 +111,7 @@ void Dispatcher::doStuff()
         {
             //pReady->getProcess(current)->setState(1); // has the process move back to being ready
         }
-        else // if somehow new
+        else // if somehow new or something
         {
             printf("Error: Impossible state at end of cycle\n"); // no other states should be possible here, so an error is thrown
         }
@@ -143,20 +138,44 @@ void Dispatcher::removeProcess(int i, bool j) // i is for index and j is for whi
     //delete(m); // currently causes an error of double freeing when having 3+ processes
 }
 
-void Dispatcher::swapArray(int i, bool j) // i is for index and j is for which array the process is in (0 is for ready while 1 is for waiting)
+void Dispatcher::swapArray(int i, int j, int k) // i is for index and j is for which array the process is in (0 is ready, 1 is waiting, 2 is Needs Sorting) and k is for destination array
 {
     Process* m;
-    if (!j) // ready array
+    // grabs process from array
+    if (j == 0) // ready array
     {
         m = pReady->getProcess(i);
         pReady->removeItem(i);
-        pWait->addItem(m);
     }
-    else // waiting array
+    else if (j == 1) // waiting array
     {
         m = pWait->getProcess(i);
         pWait->removeItem(i);
+    }
+    else if (j == 2) // Needs Sorting array
+    {
+        m = pNeedsSorting->getProcess(i);
+        pNeedsSorting->removeItem(i);
+    }
+    // moves to new array
+    if (k == 0)
         pReady->addItem(m);
+    else if (k == 1)
+        pWait->addItem(m);
+    else if (k == 2)
+        pNeedsSorting->addItem(m);
+}
+
+void Dispatcher::moveReadyProcesses()
+{
+    // moves ready items in pNeedsSorting to pReady
+    int x = 0;
+    while (x < pNeedsSorting->getCount())
+    {
+        if (pNeedsSorting->getProcess(x)->getState() == 1) // if process is ready
+        {
+            swapArray(x, 2, 0); // swaps from pNeedsSorting to pReady
+        }
     }
 }
 
@@ -209,3 +228,5 @@ void Dispatcher::shortestJobFirst(Process** p, int s) // takes the array and its
         i = i + 1;
     }
 }
+
+#endif

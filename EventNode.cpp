@@ -1,5 +1,9 @@
 // This is the class for the node used in EventQueue
 #pragma once
+#ifndef EVENTNODE
+#define EVENTNODE
+
+#include <cstdio>
 
 class EventNode
 {
@@ -10,6 +14,7 @@ class EventNode
         *  2 is i/o
         *  3 is critical
         *  4 is critical end
+        *  5 is fork
         */
         EventNode* next = NULL; // stores the pointer to the next node
     
@@ -61,3 +66,4 @@ int EventNode::getEvent()
 {
     return event;
 }
+#endif

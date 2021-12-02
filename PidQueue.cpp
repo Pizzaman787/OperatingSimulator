@@ -2,7 +2,9 @@
 // This class is used to store the PIDs for processes. It does this by storing numbers that can be used in a queue
 // if the queue doesn't have a number available, it makes one using the max number before raising the max
 
-//#pragma once
+#pragma once
+#ifndef PIDQUEUE
+#define PIDQUEUE
 
 #include "PidNode.cpp"
 #include "Support.cpp"
@@ -89,3 +91,5 @@ void PidQueue::putBackPID(int p) // puts the PID back in the queue (should be us
     }
     size = size + 1; // increment size
 }
+
+#endif

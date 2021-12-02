@@ -3,9 +3,12 @@
 // then using EventNode to be the nodes in the queue that store the events themselves
 
 #pragma once
+#ifndef EVENTQUEUE
+#define EVENTQUEUE
 
 #include "EventNode.cpp"
 #include "Support.cpp"
+#include <cstdio>
 
 class EventQueue
 {
@@ -20,6 +23,7 @@ class EventQueue
         void addEvent(int i);
         void popEvent();
         int readCurrentEvent();
+        void empty();
         int getSize();
         EventNode* getCurrentEvent(); // used for creating forks
 };
@@ -85,6 +89,15 @@ int EventQueue::readCurrentEvent() // returns the number associated with the nex
         return first->getEvent();
     }
 }
+
+void EventQueue::empty() // used to kill the process, as an empty process goes into terminating
+{
+    while (size > 0)
+    {
+        popEvent();
+    }
+}
+
 EventNode* EventQueue::getCurrentEvent()
 {
     return first;
@@ -94,3 +107,5 @@ int EventQueue::getSize()
 {
     return size;
 }
+
+#endif

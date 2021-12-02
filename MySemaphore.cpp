@@ -1,3 +1,7 @@
+#pragma once
+#ifndef MYSEMAPHORE
+#define MYSEMAPHORE
+
 class MySemaphore
 {
     int u = 0; // current number of available users
@@ -28,3 +32,4 @@ class MySemaphore
     }
 
 };
+#endif

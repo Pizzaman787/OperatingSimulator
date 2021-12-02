@@ -2,8 +2,10 @@
 // This class is used to store the processes for the distrubutor and roundrobin
 
 #pragma once
+#ifndef PROCESSARRAY
+#define PROCESSARRAY
 
-#include "Process.cpp"
+#include "Process.h"
 
 class ProcessArray
 {
@@ -143,3 +145,5 @@ Process* ProcessArray::getProcess(int i)
 {
     return array[i];
 }
+
+#endif

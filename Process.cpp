@@ -7,48 +7,17 @@
 */
 
 #pragma once
+#ifndef PROCESS
+#define PROCESS
 
+//#include "Dispatcher.cpp"
+#include "Process.h"
+#include "Dispatcher.h"
 #include "Support.cpp"
-#include "EventQueue.cpp"
-#include "PidQueue.cpp"
 #include "CriticalSection.cpp"
-#include <time.h>
 #include <cstdio>
 #include <stdlib.h>
 
-class Process
-{
-    private:
-        static PidQueue* pQueue;
-        int pid = 0; // current number assigned to process
-        int state = 0; // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
-        int priority = 0; // higher is more prioritized
-        int memory = 0; // stores the memory of the process
-        EventQueue* queue;
-        // MemoryArray // an array for the memory assigned to this process
-        Process *parent = NULL;
-        time_t timeCreated = 0; // stores the time when the process was created
-        void calculateProcess();
-        void inputOutputProcess();
-        void terminateProcess();
-        void criticalProcess();
-        void criticalEndProcess();
-
-    public:
-        Process(); // the constructor
-        Process(char* s); // other constructor for using a template
-        Process(char* s, int i); // template and priority
-        Process(Process* p); // forking constructor
-        void setPriority(int i);
-        int getPriority();
-        void setState(int i);
-        void printStatus();
-        int getSize();
-        void addEvents(char* name);
-        int doEvent();
-        int readCurrentEvent();
-        EventNode* getCurrentEvent();
-};
 // I was forced to initialize the static variables outside of the class
 PidQueue* Process::pQueue = new PidQueue();
 
@@ -84,6 +53,7 @@ Process::Process(Process* p) // creates a fork of the given process with the pro
     queue = new EventQueue();
     priority = p->getPriority(); // gets the priority of the parent
     parent = p; // sets parent
+    memory = p->getMemory();
 
     // fills the queue with the events in the parent (could make this a function for reusabilty)
     EventNode* en = p->getCurrentEvent();
@@ -109,6 +79,16 @@ int Process::getPriority()
 void Process::setState(int i)
 {
     state = i;
+}
+
+int Process::getState()
+{
+    return state;
+}
+
+int Process::getMemory()
+{
+    return memory;
 }
 
 void Process::printStatus() // for testing purposes
@@ -309,6 +289,10 @@ void Process::addEvents(char* name) // takes the name of a template as input
             {
                 queue->addEvent(4);
             }
+            else if (strcmp(event, "FORK") == 0)
+            {
+                queue->addEvent(5);
+            }
             // generate the number of cycles and add the events to the queue
             else
             {
@@ -395,11 +379,12 @@ void Process::inputOutputProcess()
    
 }
 
-void Process::criticalProcess()
+int Process::criticalProcess()
 {
     // ask for critical permission
     CriticalSection* crit = new CriticalSection();
-    crit->criticalWait();
+    int i = crit->criticalWait(); // 0 means couldn't get a space, 1 means got a space
+    return i;
 }
 
 void Process::criticalEndProcess()
@@ -417,12 +402,21 @@ void Process::terminateProcess()
     // waits to be destroyed by the dispatcher
 }
 
+void Process::forkProcess()
+{
+    Process* tempP = new Process(this); // creates new child process using the fork constructor
+    // adds process to the dispatcher
+    Dispatcher* dispatchTemp = new Dispatcher();
+    dispatchTemp->addProcess(tempP);
+    delete(dispatchTemp);
+}
+
 // this function gets the process to run its current event and returns which state the process was in at the end of the process
 int Process::doEvent()
 {
     // reference for state: new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
     // figure out current event
-    int e = queue->readCurrentEvent(); // 0 is empty, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end
+    int e = queue->readCurrentEvent(); // 0 is empty, 1 is calculate, 2 is i/o, 3 is critical, 4 is critical end, 5 is forking
     // do the current event
     if (e == 0) // no events left
     {
@@ -430,22 +424,34 @@ int Process::doEvent()
     }
     else if (e == 1) // calculate
     {
+        queue->popEvent(); // move to next event
         calculateProcess();
     }
     else if (e == 2) // i/o
     {
+        queue->popEvent(); // move to next event
         inputOutputProcess();
     }
     else if (e == 3) // critical section start
     {
-        criticalProcess();
+        int i = criticalProcess();
+        if (i) // won't move to the next event if not given permission
+        {
+            queue->popEvent(); // move to next event
+        }
     }
     else if (e == 4) // critical section end
     {
+        queue->popEvent(); // move to next event
         criticalEndProcess();
     }
-    // move to next event
-    queue->popEvent();
+    else if (e == 5) // forking
+    {
+        queue->popEvent();
+        forkProcess();
+    }
     // return which event just completed
     return state;
 }
+
+#endif

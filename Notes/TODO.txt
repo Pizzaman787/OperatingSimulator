@@ -7,6 +7,18 @@
 	-Fix processes not being properly added when using threading
 
 -Add memory support:
+	-Fix memory count (is being added incorrectly when totaled)
 	-Add ability to store memory in processes
 	-Add ability to have memory in templates
-	-Add manager (block or pages) to prevent process creation if it can't get enough memory (either just stop it or add it to a queue)
+	-Add manager (block or pages) to prevent process creation if it can't get enough memory (either just stop it or add it to a queue(use new process array for storing them)
+
+-Add Forking
+	-Add forking function to the template
+	-Might need to fix the parent being able to die before the child
+
+-Change dispatcher to be a big dispatcher that distributes to smaller dispatchers that actually manage processes
+
+-Can implement force killing a process by emptying its events (use empty() function on event queue)
+
+IDEA:
+Circular dependency, so things need to be reordered

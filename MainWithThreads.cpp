@@ -5,14 +5,20 @@
 // ensures the imports or includes are only included once
 //#pragma once
 
+// NOTES ON INCLUSION:
+// - Include headers, then include the cpp files here after them, as this gives the definitions for everything in the final compiled file
+
 #include <cstdio>
 #include <iostream>
 #include <stdlib.h>
 #include <pthread.h>
-
-#include "Support.cpp"
+#include "Process.h"
+#include "Dispatcher.h"
 #include "Process.cpp"
 #include "Dispatcher.cpp"
+#include "Support.cpp"
+
+
 
 using namespace std;
 
@@ -44,7 +50,7 @@ void* runProgram(void* inputThing)
         }
         */
         // process input
-        removeEndings(input);
+        //removeEndings(input); // this is done in the main thread
         //printf("Input: %s\n", input);
         if (strcmp(input, "status") == 0)
         {
@@ -207,7 +213,7 @@ int main(int argc, char* argv[])
 
         //gets(inputString); // should be under 1024 characters, else will go out of bounds
         cin >> inputString;
-        
+        removeEndings(inputString);
         // has main exit when exit is called (the thread created exits seperately as it reads the input)
         if (strcmp(inputString, "exit") == 0)
         {

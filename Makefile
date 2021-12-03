@@ -3,18 +3,7 @@ run: Main.cpp
 	./Game
 
 threads: MainWithThreads.cpp
-	g++ -std=c++11 MainWithTHreads.cpp -o Game -lpthread
-	./Game
-
-threads2: MainWithThreads.cpp
-	g++ -c MainWithTHreads.cpp -o main.o
-	g++ -c Dispatcher.cpp -o Dispatcher.o
-	g++ -c Process.cpp -o Process.o
-	g++ -std=c++11 main.o Dispatcher.o Process.o -o Game -lpthread
-	./Game
-
-threads3: MainWithThreads.cpp
-	g++ -std=c++11 MainWithTHreads.cpp Dispatcher.cpp Process.cpp -o Game -lpthread
+	g++ -std=c++11 MainWithThreads.cpp -o Game -lpthread
 	./Game
 
 valgrind: Main.cpp

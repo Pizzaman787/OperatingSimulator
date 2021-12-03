@@ -11,16 +11,17 @@ class Dispatcher
     // variables
     private:
         static ProcessArray* pNeedsSorting; // stores all processes that need to be distributed
+        static bool memArray[1024]; // the memory for the system is 1024 megabytes
         ProcessArray* pReady;
         ProcessArray* pWait;
         void swapArray(int i, int j, int k);
         void shortestJobFirst(Process* p[], int s);
         void moveReadyProcesses();
         void removeProcess(int i, bool j);
-        int sched = 0; // defaults to shortest job first
+        int sched = 0; // defaults to RoundRobin
 
     public:
-        Dispatcher(int s, int t); // the constructor
+        Dispatcher(int s); // the constructor
         Dispatcher(); // default contructor
         void addProcess(Process* m);
         void processesStatus();

@@ -17,44 +17,155 @@
 #include "Process.cpp"
 #include "Dispatcher.cpp"
 #include "Support.cpp"
-
+#include "MyArrayList.cpp"
 
 
 using namespace std;
 
-// thread function
-void* runProgram(void* inputThing)
-{
-    char* input = (char*)inputThing; // converts input pointer
-    bool pause = 0;
-    bool alwaysStatus = 0;
+bool pause = 0;
+bool alwaysStatus = 0;
+char inputString[1024] = ""; // string for storing input
+int threadCount = 0; // stores the number of threads
+MyArrayList<int>* threadInstruction = new MyArrayList<int>(); // ArrayList for thread instruction where 0 is empty, 1 is in use/resting, 2 is for print status, 3 is for exit
 
-    Dispatcher* dispatch = new Dispatcher(0, 1); // creates the dispatcher using shortest job first and one thread
-    
+// forward declarations:
+void* runProgram(void* sched); 
+void* inputProgram(void* thing);
+int getThreadSlot();
+// FIX THREADS TO USE threadInstruction array rather than threadKiller and thread count 
+//(have threadcount update as new ones are added or removed and have them check for an open slot in threadInstruction, maybe via a function or something)
+
+
+// Main function
+int main(int argc, char* argv[])
+{
+    /*
+    // sets up kernel (asks number of threads)
+
+    // looping system
     while(1)
     {
-        // scan for input (Creation of a process or status check)
-        /* File based input
-        // tabbed part should be outside of while loop
-            char input[1024] = "";
-            FILE* inputFile;
-            inputFile = fopen("./input.txt", "r"); // opens the file to read
-        if (inputFile != NULL)
+        // begin a cycle
+        
+        // Checks if there has been input from the user
+
+        // processes input or just performs the cycle (create processes and stuff)
+            // to run a cycle, have the distributor run the processes it gets in the list from the RoundRobin
+
+        // prepare to run again (end the cycle)
+
+        // display UI update if UI is wanted
+
+    }
+    */
+
+    srand(time(NULL)); // seeds rand
+    
+    // creates input thread
+    pthread_t inputThread;
+    if (pthread_create(&inputThread, NULL, inputProgram, NULL)) // creates the thread and error checks
+    {
+        printf("Error: Input thread creation failed. Exiting program.\n");
+        exit(-1);
+    }
+
+    // creates a running thread (should change to make threads based off a number
+    pthread_t runThread;
+    int* tempSched;
+    *tempSched = 0; // round robin scheduler
+    if (pthread_create(&inputThread, NULL, runProgram, (void*)tempSched)) // creates the thread and error checks
+    {
+        printf("Error: Running thread creation failed. Exiting program.\n");
+        exit(-1);
+    }
+
+    printf("-System Started-\n"); // prints notification that the program is ready for input
+
+    while(1) // main just checks for input
+    {
+        // maybe see if can check if thread is still alive
+
+        //gets(inputString); // should be under 1024 characters, else will go out of bounds
+        cin >> inputString;
+        removeEndings(inputString);
+        // has main exit when exit is called (the thread created exits seperately as it reads the input)
+        if (strcmp(inputString, "exit") == 0)
         {
-            fgets(input, 1024, inputFile); // puts the first line into the input
+            //pthread_exit(NULL); // closes the thread (or the main thread in this case)
+            printf("Exiting...\n");
+            exit(0); // closes program and threads
         }
-        else
+    }
+
+    
+    return 0;
+}
+
+// thread function for running
+void* runProgram(void* sched)
+{
+    int thread = getThreadSlot(); // grabs what number of running thread this is
+    threadCount = threadCount + 1; // increases thread count
+
+    Dispatcher* dispatch = new Dispatcher(*((int*)sched)); // creates the dispatcher using the argument to determine the sheduler
+
+    while (1)
+    {
+        // runs the program if not pausesd
+        if (!pause)
         {
-            // fclose(inputFile); // closes the file that failed to open
-            inputFile = fopen("./input.txt", "w"); // opens the file to write to make a blank input file
+            dispatch->doStuff();
+            if (alwaysStatus)
+            {
+                printf("Thread: %i\n", thread);
+                dispatch->processesStatus(); // for testing
+            }
+
+            // Thread instructions
+            if (*(threadInstruction->getItem(thread)) == 2) // if told to print status
+            {
+                printf("Thread: %i\n", thread);
+                dispatch->processesStatus();
+                *(threadInstruction->getItem(thread)) = 1; // sets back to rest
+            }
+            else if (*(threadInstruction->getItem(thread)) == 3) // if told to exit
+            {
+                *(threadInstruction->getItem(thread)) = 0; // resets the thread killer
+                pthread_exit(NULL); // closes the thread
+            }
         }
-        */
-        // process input
-        //removeEndings(input); // this is done in the main thread
-        //printf("Input: %s\n", input);
+    }
+}
+// thread function for input
+void* inputProgram(void* thing)
+{
+    int thread = getThreadSlot(); // grabs what number of running thread this is
+    threadCount = threadCount + 1; // increases thread count
+
+    char* input = inputString; // converts input pointer
+
+    Dispatcher* dispatch = new Dispatcher(); // creates a dispatcher for use of process creation
+    
+    // loops reading input
+    while(*(threadInstruction->getItem(thread)) != 3) // goes until told to exit
+    {
+        // Thread Instructions 
+        if (*(threadInstruction->getItem(thread)) == 2) // input thread told to check status
+        {
+            *(threadInstruction->getItem(thread)) == 1; // just moves it back to idle, as the input thread doesn't show status
+        }
+
+        // Managing input
         if (strcmp(input, "status") == 0)
         {
-            dispatch->processesStatus();
+            //dispatch->processesStatus();
+            // sets all the threads to print their status
+            int i = 0;
+            while (i < threadInstruction->getCount())
+            {
+                *(threadInstruction->getItem(i)) = 2;
+                i = i + 1;
+            }
             strcpy(input, ""); // clears input
         }
         else if (strcmp(input, "alwaysStatus") == 0)
@@ -64,12 +175,8 @@ void* runProgram(void* inputThing)
         }
         else if (strcmp(input, "exit") == 0)
         {
-            strcpy(input, ""); // clears input
-            printf("Exiting...\n");
-            //freopen("./input.txt", "w", inputFile); // reopens the file in writing only to overwrite anything in the file (clears the file)
-            //fclose(inputFile); // closes the input file
-            //break;
-            pthread_exit(NULL); // closes the thread
+            //strcpy(input, ""); // clears input (Doesn't do this, as there is a slim chance it does it before main has a chance of closing)
+            // actually exiting is determined in main, so it doesn't actually do anything in here
         }
         // this command breaks due to a bug with %, as it will randomly throw a Floating Point Exception, though no divide by zero or floats are used
         else if (strcmp(input, "random") == 0) // adds a number of random processes from the templates
@@ -152,111 +259,18 @@ void* runProgram(void* inputThing)
                 }
             }
         }
-        //freopen("./input.txt", "w", inputFile); // reopens the file in writing only to overwrite anything in the file (clears the file)
-        //fclose(inputFile); // closes the input file
-        // the dispatcher does stuff if not paused
-        if (!pause)
-        {
-            dispatch->doStuff();
-            if (alwaysStatus)
-            {
-                dispatch->processesStatus(); // for testing
-            }
-        }
-        //printf("One cycle done.\n"); 
     }
     if (showDeletes)
         printf("Deleting Dispatcher: Main\n"); // for TESTING
     delete dispatch; // deletes the dispatcher
+    *(threadInstruction->getItem(thread)) = 0; // resets the thread instruction to empty
+    pthread_exit(NULL); // closes the thread
 }
 
-//function
-int main(int argc, char* argv[])
+int getThreadSlot()
 {
-    /*
-    // sets up kernel (asks number of threads)
-
-    // looping system
-    while(1)
-    {
-        // begin a cycle
-        
-        // Checks if there has been input from the user
-
-        // processes input or just performs the cycle (create processes and stuff)
-            // to run a cycle, have the distributor run the processes it gets in the list from the RoundRobin
-
-        // prepare to run again (end the cycle)
-
-        // display UI update if UI is wanted
-
-    }
-    */
-
-    printf("-System Started-\n");
-    srand(time(NULL)); // seeds rand
-
-
-    // thread input
-    char inputString[1024] = ""; // string for storing input
-    
-    pthread_t inputThread;
-    if (pthread_create(&inputThread, NULL, runProgram, (void*)inputString)) // creates the thread and error checks
-    {
-        printf("Error: Running thread creation failed. Exiting program.\n");
-        exit(-1);
-    }
-
-    while(1) // main just checks for input
-    {
-        // maybe see if can check if thread is still alive
-
-        //gets(inputString); // should be under 1024 characters, else will go out of bounds
-        cin >> inputString;
-        removeEndings(inputString);
-        // has main exit when exit is called (the thread created exits seperately as it reads the input)
-        if (strcmp(inputString, "exit") == 0)
-        {
-            //pthread_exit(NULL); // closes the thread (or the main thread in this case)
-            exit(0); // closes program and threads
-        }
-    }
-
-    
-    return 0;
-
-    // for testing
-    /*
-    Process* pc[10];
-    int pSize = 0;
-    while(1)
-    {
-        // scan for input (Creation of a process or status check)
-        char input[1024];
-        printf("Waiting for input: ");
-        std::cin>>input; // takes user input and sticks it in the input array
-        // process input
-        removeEndings(input);
-        if (strcmp(input, "status") == 0)
-        {
-            int i = 0;
-            while(i < pSize)
-            {
-                pc[i]->printStatus();
-                i = i + 1;
-            }
-        }
-        else if (strcmp(input, "exit") == 0)
-        {
-            break;
-        }
-        else
-        {
-            pc[pSize] = new Process(input);
-            pSize = pSize + 1;
-        }
-        printf("One cycle done.\n"); 
-    }
-    return 0;
-    */
+    int* j = new int; // have to add to memory or else the primitive is removed when this function finishes running
+    *j = 1;
+    int i = threadInstruction->addItem(j);
+    return i;
 }

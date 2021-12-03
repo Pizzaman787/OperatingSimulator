@@ -27,7 +27,7 @@
 ProcessArray* Dispatcher::pNeedsSorting = new ProcessArray();
 
 // Constructors
-Dispatcher::Dispatcher(int s, int t) // the s is for which scheduler to use and t is for threads
+Dispatcher::Dispatcher(int s) // the s is for which scheduler
 {
     pReady = new ProcessArray();
     pWait = new ProcessArray();

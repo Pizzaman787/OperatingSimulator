@@ -24,9 +24,10 @@ using namespace std;
 
 bool pause = 0;
 bool alwaysStatus = 0;
+bool randomIOinterrupts = 1; // for causing random interrupts in the threads (0 is off and 1 is on)
 char inputString[1024] = ""; // string for storing input
 int threadCount = 0; // stores the number of threads
-MyArrayList<int>* threadInstruction = new MyArrayList<int>(); // ArrayList for thread instruction where 0 is empty, 1 is in use/resting, 2 is for print status, 3 is for exit
+MyArrayList<int>* threadInstruction = new MyArrayList<int>(); // ArrayList for thread instruction where 0 is empty, 1 is in use/resting, 2 is for print status, 3 is for exit, 4 is for random I/O interrupt
 
 // forward declarations:
 void* runProgram(void* sched); 
@@ -59,7 +60,7 @@ int main(int argc, char* argv[])
     }
     */
 
-    srand(time(NULL)); // seeds rand
+    srand(time(0)); // seeds rand
     
     // creates input thread
     pthread_t inputThread;
@@ -83,8 +84,6 @@ int main(int argc, char* argv[])
 
     while(1) // main just checks for input
     {
-        // maybe see if can check if thread is still alive
-
         //gets(inputString); // should be under 1024 characters, else will go out of bounds
         cin >> inputString;
         removeEndings(inputString);
@@ -133,6 +132,18 @@ void* runProgram(void* sched)
                 *(threadInstruction->getItem(thread)) = 0; // resets the thread killer
                 pthread_exit(NULL); // closes the thread
             }
+            else if (*(threadInstruction->getItem(thread)) == 4) // random I/O interrupt
+            {
+                int msec = 0, trigger = 10; /* 10ms */
+                clock_t before = clock();
+
+                do {
+                    clock_t difference = clock() - before;
+                    msec = difference * 1000 / CLOCKS_PER_SEC;
+                } while ( msec < trigger );
+
+                *(threadInstruction->getItem(thread)) = 1;
+            }
         }
     }
 }
@@ -149,10 +160,40 @@ void* inputProgram(void* thing)
     // loops reading input
     while(*(threadInstruction->getItem(thread)) != 3) // goes until told to exit
     {
+        // checks if it should cause a random I/O interrupt
+        // would put in main, but main is checking for input, so it pauses when input isn't being given
+        if (randomIOinterrupts)
+        {
+            if ((int)(rand() % 51231241) == 0) // some really low chance
+            {
+                //printf("I/O interrupt...\n"); // for TESTING
+                int l = 0;
+                while (l < threadInstruction->getCount())
+                {
+                    *(threadInstruction->getItem(l)) = 4; // sets them to be interrupted
+                    l = l + 1;
+                }
+            }
+        }
+
         // Thread Instructions 
         if (*(threadInstruction->getItem(thread)) == 2) // input thread told to check status
         {
-            *(threadInstruction->getItem(thread)) == 1; // just moves it back to idle, as the input thread doesn't show status
+            *(threadInstruction->getItem(thread)) = 1; // just moves it back to idle, as the input thread doesn't show status
+        }
+        else if (*(threadInstruction->getItem(thread)) == 4) // random I/O interrupt
+        {
+            //printf("I/O interrupt1...\n"); // for TESTING
+            int msec = 0, trigger = 10; /* 10ms */
+            clock_t before = clock();
+
+            do {
+                clock_t difference = clock() - before;
+                msec = difference * 1000 / CLOCKS_PER_SEC;
+            } while ( msec < trigger );
+
+            *(threadInstruction->getItem(thread)) = 1;
+            //printf("I/O interrupt2...\n"); // for TESTING
         }
 
         // Managing input
@@ -199,7 +240,7 @@ void* inputProgram(void* thing)
             while (randI < num)
             {
                 //int randJ = (rand() % 5); // gets the range between 0 and 5 (it cannot get 5)
-                int randJ = rand();
+                int randJ = (int)(rand() % 5);
                 if (randJ == 0)
                 {
                     char tempS[] = "Basic2plus2";

@@ -1,6 +1,6 @@
 -RoundRobin (acts as the scheduler that the distributor uses)
 -Fix shortest job first algorithm (can take the current thing for round robin)
--Fix PID queue (seems to not properly distribute or put back PIDs)
+-Fix PIDs (seem to get really big, so aren't incrementing properly and are reusing PIDs)
 -Fix memory issue in dispatcher for deleting processes
 -fix rand not working for randomizing created processes
 
@@ -20,9 +20,10 @@
 	-Add forking function to the template
 	-Might need to fix the parent being able to die before the child
 
--Change dispatcher to be a big dispatcher that distributes to smaller dispatchers that actually manage processes
+-Can simulate another cpu by having something else that manages schedulers
 
 -Can implement force killing a process by emptying its events (use empty() function on event queue)
 
-IDEA:
-Circular dependency, so things need to be reordered
+-Critical sections can bug out if forking is done during one (can increase cap by having two exit critical section when only one entered)
+
+-I/O interupt by having either the whole system or just dispatchers have a random chance of sleeping for a short deration

@@ -1,13 +1,13 @@
-run: Main.cpp
+run: main.cpp
 	g++ -std=c++11 Main.cpp -o Game
 	./Game
 
-threads: MainWithThreads.cpp
-	g++ -std=c++11 MainWithThreads.cpp -o Game -lpthread
+threads: main.cpp
+	g++ -std=c++11 main.cpp -o Game -lpthread
 	./Game
 
-valgrind: Main.cpp
-	g++ -std=c++11 Main.cpp -o Game
+valgrind: main.cpp
+	g++ -std=c++11 main.cpp -o Game
 	valgrind --leak-check=yes Game
 #windows : Base.c
 #	gcc -H Base.c -o Game.exe

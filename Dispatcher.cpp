@@ -27,6 +27,7 @@
 ProcessArray* Dispatcher::pNeedsSorting = new ProcessArray();
 int Dispatcher::availableMemory = 1024;
 bool Dispatcher::memArray[1024];
+MySemaphore* Dispatcher::threadProtection = new MySemaphore(1); // a semaphore with one opening
 
 // Constructors
 Dispatcher::Dispatcher(int s) // the s is for which scheduler
@@ -82,8 +83,10 @@ void Dispatcher::doStuff()
     // figure out what scheduler to use and have it sort the ready array
     if (sched == 0)
     {
+        threadProtection->wait(); // calls the threadProtection semaphore to prevent multiple threads from readying or moving processes
         readyProcesses();
         moveReadyProcesses();
+        threadProtection->signal(); // exits semaphore
         shortestJobFirst(pReady->getArray(), pReady->getCount()); // sorts the ready array
     }
     // have the pReady array do stuff

@@ -361,7 +361,7 @@ void Process::calculateProcess()
     if (artificialDelays) // adds more delay
     {
         // wait for a period of time
-        int msec = 0, trigger = 10; /* 10ms */
+        int msec = 0, trigger = 100; /* 100ms */
         clock_t before = clock();
 
         do {
@@ -387,7 +387,7 @@ void Process::inputOutputProcess()
     if (artificialDelays) // adds more delay
     {
         // wait for a period of time
-        int msec = 0, trigger = 20; /* 20ms */
+        int msec = 0, trigger = 200; /* 200ms */
         clock_t before = clock();
 
         do {

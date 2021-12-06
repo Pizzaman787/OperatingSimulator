@@ -4,6 +4,8 @@
 #define DISPATCHER_H
 
 //#include "ProcessArray.cpp"
+#include "MySemaphore.cpp"
+
 class ProcessArray; // forward declaration
 
 class Dispatcher
@@ -13,6 +15,7 @@ class Dispatcher
         static ProcessArray* pNeedsSorting; // stores all processes that need to be distributed
         static bool memArray[1024]; // the memory for the system is 1024 megabytes
         static int availableMemory;
+        static MySemaphore* threadProtection;
         ProcessArray* pReady;
         ProcessArray* pWait;
         void swapArray(int i, int j, int k);

@@ -2,28 +2,18 @@
 -Fix shortest job first algorithm (can take the current thing for round robin)
 -Fix PIDs (seem to get really big, so aren't incrementing properly and are reusing PIDs)
 -Fix memory issue in dispatcher for deleting processes
--fix rand not working for randomizing created processes
+-fix rand not working for randomizing created processes (currently crashes the running thread, maybe cause it has multiple processes in the pNeedsSorting?)
 
--Move input to be in its own thread, so dispatcher are in their own threads (Use an empty dispatcher in the input thread to add processes)
-	-Add critical section called threadProtection for adding processes from pNeedsSorting (in moveReadyProcesses, so that having multiple threads doesn't cause duplicate or NULL pointer like errors)
-	-Fix that currently the use of a number rather than a pointer for a thread slot causes the array to only get bigger (might be okay if no change of threads is wanted)
+-Fix that currently the use of a number rather than a pointer for a thread slot causes the array to only get bigger (might be okay if no change of threads is wanted)
 
 -Make the program more user friendly (better start screen and a help command)
 
--Add memory support:
-	-Fix memory count (is being added incorrectly when totaled)
-	-Add ability to store memory in processes
-	-Add ability to have memory in templates
-	-Add manager (block or pages) to prevent process creation if it can't get enough memory (either just stop it or add it to a queue(use new process array for storing them)
+-Fix memory count (is being added incorrectly when totaled)
 
--Add Forking
-	-Add forking function to the template
-	-Might need to fix the parent being able to die before the child
+-Might need to fix the parent being able to die before the child
 
 -Can simulate another cpu by having something else that manages schedulers
 
 -Can implement force killing a process by emptying its events (use empty() function on event queue)
 
 -Critical sections can bug out if forking is done during one (can increase cap by having two exit critical section when only one entered)
-
--I/O interupt by having either the whole system or just dispatchers have a random chance of sleeping for a short deration

@@ -25,6 +25,8 @@
 
 // static initializations
 ProcessArray* Dispatcher::pNeedsSorting = new ProcessArray();
+int Dispatcher::availableMemory = 1024;
+bool Dispatcher::memArray[1024];
 
 // Constructors
 Dispatcher::Dispatcher(int s) // the s is for which scheduler
@@ -45,7 +47,7 @@ void Dispatcher::addProcess(Process* m)
 {
     //pReady->addItem(m);
     pNeedsSorting->addItem(m);
-    m->setState(1); // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
+    m->setState(0); // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
 }
 
 int Dispatcher::totalProcesses()
@@ -80,6 +82,7 @@ void Dispatcher::doStuff()
     // figure out what scheduler to use and have it sort the ready array
     if (sched == 0)
     {
+        readyProcesses();
         moveReadyProcesses();
         shortestJobFirst(pReady->getArray(), pReady->getCount()); // sorts the ready array
     }
@@ -122,19 +125,36 @@ void Dispatcher::doStuff()
 void Dispatcher::removeProcess(int i, bool j) // i is for index and j is for which array (0 is for ready while 1 is for waiting)
 {
     Process* m;
-    if (!j) // ready array
+    if (j == 0) // ready array
     {
         m = pReady->getProcess(i);
         pReady->removeItem(i);
     }
-    else // waiting array
+    else if (j == 1) // waiting array
     {
         m = pWait->getProcess(i);
         pWait->removeItem(i);
     }
+    else if (j == 2)
+    {
+        m = pNeedsSorting->getProcess(i);
+        pNeedsSorting->removeItem(i);
+    }
+    // frees memory assigned to the process
+    int k = 0;
+    while (k < 1024)
+    {
+        if (m->processMemory[k] == 1)
+        {
+            memArray[k] = 0;
+            m->processMemory[k] = 0;
+        }
+        k = k + 1;
+    }
+    availableMemory = availableMemory + m->getMemory();
     //m->terminateProcess(); // should already be terminating by the process class setting it itself
-    if (showDeletes)
-        printf("Deleting process: Dispatcher %i %i \n", i, j); // for TESTING
+    //if (showDeletes)
+        //printf("Deleting process: Dispatcher %i %i \n", i, j); // for TESTING
     //delete(m); // currently causes an error of double freeing when having 3+ processes
 }
 
@@ -176,6 +196,39 @@ void Dispatcher::moveReadyProcesses()
         {
             swapArray(x, 2, 0); // swaps from pNeedsSorting to pReady
         }
+    }
+}
+
+// this function readies processes if they can be assigned the necessary memory
+void Dispatcher::readyProcesses()
+{
+    // look at process in the pNeedsSorting
+    int i = 0;
+    while (i < pNeedsSorting->getCount())
+    {
+        Process* tempP = pNeedsSorting->getProcess(i);
+        //check if enough memory is available
+        if (availableMemory >= tempP->getMemory())
+        {
+            //assign slots of memory to the process (this is done one megabyte at a time as pages are one megabyte in this case)
+            int j = tempP->getMemory();
+            int k = 0;
+            while (j > 0)
+            {
+                if (memArray[k] == 0) // if the slot is empty
+                {
+                    memArray[k] = 1; // note the slot is now filled
+                    tempP->processMemory[k] = 1; // tell the process it has this slot
+                    j = j - 1; // note that memory was assigned
+                }
+                k = k + 1;
+            }
+            // update available memory
+            availableMemory = availableMemory - tempP->getMemory();
+            // ready the process
+            tempP->setState(1);
+        }
+        i = i + 1;
     }
 }
 

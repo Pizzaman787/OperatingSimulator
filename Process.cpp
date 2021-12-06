@@ -175,7 +175,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
                 else if (!eventFound)
                 {
                     char* temp = strchr(read, '\t');
-                    if (temp == NULL) // checks if there wans't a tab
+                    if (temp == NULL) // checks if there wasn't a tab
                     {
                         temp = strchr(read, '\0');
                     }
@@ -201,15 +201,16 @@ void Process::addEvents(char* name) // takes the name of a template as input
                         {
                             temp = strchr(read, '\0');
                         }
+                    
                         int wordSize = strlen(read) - strlen(temp);
                         int i = 0;
                         while (i < wordSize) // copies the number to the temp2 string
                         {
                             temp2[i] = read[i];
                             i = i + 1;
-                        }
+                        } 
                         temp2[i] = '\0'; // adds the end string or null character
-                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+                        strcpy(read, temp); // removes the word from the read string
 
                         minCycles = atoi(&temp2[0]);
                         minCyclesFound = true;
@@ -222,6 +223,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
                         {
                             temp = strchr(read, '\0');
                         }
+                    
                         int wordSize = strlen(read) - strlen(temp);
                         int i = 0;
                         while (i < wordSize) // copies the number to the temp2 string
@@ -230,7 +232,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
                             i = i + 1;
                         } 
                         temp2[i] = '\0'; // adds the end string or null character
-                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+                        strcpy(read, temp); // removes the word from the read string
 
                         maxCycles = atoi(&temp2[0]);
                         maxCyclesFound = true;
@@ -243,15 +245,16 @@ void Process::addEvents(char* name) // takes the name of a template as input
                         {
                             temp = strchr(read, '\0');
                         }
+                    
                         int wordSize = strlen(read) - strlen(temp);
                         int i = 0;
                         while (i < wordSize) // copies the number to the temp2 string
                         {
                             temp2[i] = read[i];
                             i = i + 1;
-                        }
+                        } 
                         temp2[i] = '\0'; // adds the end string or null character
-                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+                        strcpy(read, temp); // removes the word from the read string
 
                         minMemory = atoi(&temp2[0]);
                         minMemoryFound = true;
@@ -264,20 +267,32 @@ void Process::addEvents(char* name) // takes the name of a template as input
                         {
                             temp = strchr(read, '\0');
                         }
+                    
                         int wordSize = strlen(read) - strlen(temp);
                         int i = 0;
                         while (i < wordSize) // copies the number to the temp2 string
                         {
                             temp2[i] = read[i];
                             i = i + 1;
-                        }
+                        } 
                         temp2[i] = '\0'; // adds the end string or null character
-                        strcpy(read, strchr(read, *temp)); // removes the word from the read string
+                        strcpy(read, temp); // removes the word from the read string // THIS BREAKS THE STRING SOMEHOW
 
                         maxMemory = atoi(&temp2[0]);
                         maxMemoryFound = true;
                     }
                     //strcpy(read, strchr(read, read[1])); // Removes the tab at the beginning
+                }
+
+                // checks if it is an event that doesn't need it to check any more (soley for optimization)
+                if (eventFound)
+                {
+                    if (strcmp(event, "CRITICAL") == 0)
+                        break;
+                    else if (strcmp(event, "CRITICAL_END") == 0)
+                        break;
+                    else if (strcmp(event, "FORK") == 0)
+                        break;
                 }
             }
             // check if the event is one without cycles (such as critical and critical end)
@@ -297,7 +312,7 @@ void Process::addEvents(char* name) // takes the name of a template as input
             else
             {
                 //srand(time(NULL)); // seeds rand
-                int j = rand() % (maxCycles + 1 - minCycles); // gets the range between min and max
+                int j = (int)(rand() % (maxCycles + 1 - minCycles)); // gets the range between min and max
                 j = j + minCycles; // adds the min to set a minumum number
                 int i = 0;
                 while (i < j)
@@ -312,11 +327,15 @@ void Process::addEvents(char* name) // takes the name of a template as input
                     }
                     i = i + 1;
                 }
+                
+                //printf("MinCycles: %i MaxCycles: %i\t", minCycles, maxCycles); // for testing
+                // adds the memory from those events
+                int m = (int)(rand() % (maxMemory + 1 - minMemory)); // gets the range between min and max
+                m = m + minMemory; // adds the min to set a minumum number
+                memory = memory + m; // adds the memory for this part to the total memory of the process
+                //printf("End Num: %i ", m); // for testing
+                //printf("\tMin mem: %i Max mem: %i\n", minMemory, maxMemory); // for testing
             }
-            // adds the memory
-            int j = rand() % (maxMemory + 1 - minMemory); // gets the range between min and max
-            j = j + minMemory; // adds the min to set a minumum number
-            memory = memory + j; // adds the memory for this part to the total memory of the process
         }
         fclose(texts); // closes the file
     }

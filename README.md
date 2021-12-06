@@ -11,3 +11,4 @@ Current Notes:
 -Only supports input in the file that is less than 1024 characters or less
 -The Process class acts as a PCB
 -Status currently can't show processes terminating and running, as they finish or change before status can show them
+-Technically a really low chance the I/O interrupt prevents the status command

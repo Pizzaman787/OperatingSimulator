@@ -16,7 +16,6 @@ class Process
         int priority = 0; // higher is more prioritized
         int memory = 0; // stores the memory of the process
         EventQueue* queue;
-        // MemoryArray // an array for the memory assigned to this process
         Process *parent = NULL;
         time_t timeCreated = 0; // stores the time when the process was created
         void calculateProcess();
@@ -38,6 +37,7 @@ class Process
         void printStatus();
         int getSize();
         int getMemory();
+        bool processMemory[1024]; // shows what megabytes are in use by this process (this is public to make memory assignment easier)
         void addEvents(char* name);
         int doEvent();
         int readCurrentEvent();

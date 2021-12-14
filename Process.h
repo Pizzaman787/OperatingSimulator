@@ -15,6 +15,7 @@ class Process
         int state = 0; // new = 0, ready = 1, running = 2, waiting = 3, terminating = 4
         int priority = 0; // higher is more prioritized
         int memory = 0; // stores the memory of the process
+        int mailbox = -1; // number represents a message, like 1 is another process is wrapping up while -1 is empty
         EventQueue* queue;
         Process *parent = NULL;
         time_t timeCreated = 0; // stores the time when the process was created
@@ -42,6 +43,7 @@ class Process
         int readCurrentEvent();
         EventNode* getCurrentEvent();
         void terminateProcess();
+        void giveMail(int i);
 };
 
 #endif

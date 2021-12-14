@@ -343,6 +343,11 @@ void Process::addEvents(char* name) // takes the name of a template as input
     }
 }
 
+void Process::giveMail(int i)
+{
+	mailbox = i;
+}
+
 // Need to add some functions for what the process does for the events, such as:
 // calculateProcess() - just sleeps for one millisecond or doesn't do anything
 // inputOutputProcess() - just sleeps and sets the process to wait

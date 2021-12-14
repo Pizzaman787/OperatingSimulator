@@ -20,7 +20,6 @@ class Process
         time_t timeCreated = 0; // stores the time when the process was created
         void calculateProcess();
         void inputOutputProcess();
-        void terminateProcess();
         int criticalProcess();
         void criticalEndProcess();
         void forkProcess();
@@ -42,6 +41,7 @@ class Process
         int doEvent();
         int readCurrentEvent();
         EventNode* getCurrentEvent();
+        void terminateProcess();
 };
 
 #endif

@@ -20,6 +20,7 @@ class Dispatcher
         ProcessArray* pWait;
         void swapArray(int i, int j, int k);
         void shortestJobFirst(Process* p[], int s);
+        void lowestPriorityFirst(Process* p[], int s);
         void readyProcesses();
         void moveReadyProcesses();
         void removeProcess(int i, bool j);
@@ -32,7 +33,8 @@ class Dispatcher
         void processesStatus();
         int totalProcesses();
         void doStuff();
-        //void shortestJobFirst(Process* p[], int s);
+        void setScheduler(int i);
+        void emptyProcesses();
 };
 
 #endif

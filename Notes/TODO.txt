@@ -8,12 +8,10 @@
 
 -Make the program more user friendly (better start screen and a help command)
 
--Fix memory count (is being added incorrectly when totaled)
+-Fix memory count (is being added incorrectly when totaled, though it seems to be an issue with strcpy currupting my strings rather than my code)
 
 -Might need to fix the parent being able to die before the child
 
 -Can simulate another cpu by having something else that manages schedulers
-
--Can implement force killing a process by emptying its events (use empty() function on event queue)
 
 -Critical sections can bug out if forking is done during one (can increase cap by having two exit critical section when only one entered)

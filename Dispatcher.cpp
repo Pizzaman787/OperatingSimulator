@@ -53,7 +53,7 @@ void Dispatcher::addProcess(Process* m)
 
 int Dispatcher::totalProcesses()
 {
-    return (pReady->getCount() + pWait->getCount());
+    return (pReady->getCount() + pWait->getCount() + pNeedsSorting->getCount());
 }
 
 // this is the function to have the processes get running by the dispatcher
@@ -88,6 +88,14 @@ void Dispatcher::doStuff()
         moveReadyProcesses();
         threadProtection->signal(); // exits semaphore
         shortestJobFirst(pReady->getArray(), pReady->getCount()); // sorts the ready array
+    }
+    else if (sched == 1)
+    {
+    	threadProtection->wait(); // calls the threadProtection semaphore to prevent multiple threads from readying or moving processes
+		readyProcesses();
+		moveReadyProcesses();
+		threadProtection->signal(); // exits semaphore
+		lowestPriorityFirst(pReady->getArray(), pReady->getCount()); // sorts the ready array
     }
     // have the pReady array do stuff
         // have the processes try to run, but swap if going to i/o or remove if nothing left
@@ -261,6 +269,38 @@ void Dispatcher::processesStatus()
     printf("\n");
 }
 
+void Dispatcher::emptyProcesses() // empties the processes to clear the dispatcher
+{
+	// clears needs sorting
+	int i = 0;
+	while (i < pNeedsSorting->getCount())
+	{
+		pNeedsSorting->getProcess(i)->terminateProcess();
+		i = i + 1;
+	}
+	
+	// clears wait
+	i = 0;
+	while (i < pWait->getCount())
+	{
+		pWait->getProcess(i)->terminateProcess();
+		i = i + 1;
+	}
+		
+	// clears ready
+	i = 0;
+	while (i < pReady->getCount())
+	{
+		pReady->getProcess(i)->terminateProcess();
+		i = i + 1;
+	}
+}
+
+void Dispatcher::setScheduler(int i) // changes what dispatcher is being used
+{
+	sched = i;
+}
+
 // shortest job first scheduler
 void Dispatcher::shortestJobFirst(Process** p, int s) // takes the array and its size as arguments
 {
@@ -273,6 +313,30 @@ void Dispatcher::shortestJobFirst(Process** p, int s) // takes the array and its
         while (j < (s - 1)) // no comparison for the last one in the array
         {
             if (p[j]->getSize() > p[j + 1]->getSize()) // if first is bigger than second
+            {
+                // swap positions
+                Process* temp = p[j];
+                p[j] = p[j + 1];
+                p[j + 1] = temp;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+}
+
+// lowest priority first scheduler
+void Dispatcher::lowestPriorityFirst(Process** p, int s) // takes the array and its size as arguments
+{
+    // sorts the given array so that they are in order from shortest to longest
+    // Bubble sort:
+    int i = 0;
+    while (i < s)
+    {
+        int j = 0;
+        while (j < (s - 1)) // no comparison for the last one in the array
+        {
+            if (p[j]->getPriority() > p[j + 1]->getPriority()) // if first is lower priority than second
             {
                 // swap positions
                 Process* temp = p[j];

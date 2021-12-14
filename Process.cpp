@@ -27,6 +27,7 @@ Process::Process() // creation without a parent process
     pid = pQueue->requestPID(); // gets a unique PID
     timeCreated = time(NULL); // stores current time in seconds
     queue = new EventQueue();
+    priority = (int)(rand() % (5 + 1 - 0)); // gives a random priority between 0 and 5
 }
 
 Process::Process(char* s) // creation without a parent process, but with a template for the events
@@ -35,6 +36,7 @@ Process::Process(char* s) // creation without a parent process, but with a templ
     timeCreated = time(NULL); // stores current time in seconds
     queue = new EventQueue();
     addEvents(s); // will make an empty process if template not found
+    priority = (int)(rand() % (5 + 1 - 0)); // gives a random priority between 0 and 5
 }
 
 Process::Process(char* s, int i) // creation without a parent process, but with a template for the events and priority
@@ -416,8 +418,8 @@ void Process::criticalEndProcess()
 void Process::terminateProcess()
 {
     state = 4; // is terminating
-    // returns it pid
-    pQueue->putBackPID(pid);
+    pQueue->putBackPID(pid); // returns it pid
+    queue->empty(); // forces the process to be empty in case terminateProcess is called on an unfinished process (dispatcher doesn't properly remove non-empty processes)
     // waits to be destroyed by the dispatcher
 }
 
